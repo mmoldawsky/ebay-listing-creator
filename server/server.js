@@ -36,7 +36,22 @@ app.post('/api/listings/preview', (req, res) => {
     return res.status(400).json({ errors });
   }
 
-  res.json({ ok: true, preview: { ...req.body, status: 'ready' } });
+  const listing = {
+    title: req.body.title,
+    description: `High-quality ${req.body.title.toLowerCase()} for your collection.`,
+    price: Number(req.body.price),
+    quantity: Number(req.body.quantity),
+    condition: 'USED',
+    categoryId: '31388',
+    shipping: {
+      serviceType: 'STANDARD',
+      cost: 4.99,
+      handlingTime: '1'
+    },
+    status: 'ready'
+  };
+
+  res.json({ ok: true, preview: listing });
 });
 
 app.post('/api/listings/create', (req, res) => {
@@ -51,12 +66,33 @@ app.post('/api/listings/create', (req, res) => {
     return res.status(401).json({ error: 'eBay account is not connected yet.' });
   }
 
-  res.json({ ok: true, message: 'Listing submission stub is ready.', listing: { ...req.body, connected: true } });
+  const draftListing = {
+    title: req.body.title,
+    description: `High-quality ${req.body.title.toLowerCase()} for your collection.`,
+    price: Number(req.body.price),
+    quantity: Number(req.body.quantity),
+    condition: 'USED',
+    categoryId: '31388',
+    shipping: {
+      serviceType: 'STANDARD',
+      cost: 4.99,
+      handlingTime: '1'
+    },
+    connected: true,
+    status: 'submitted'
+  };
+
+  res.json({ ok: true, message: 'Listing submission stub is ready.', listing: draftListing });
 });
 
 app.get('/api/auth/ebay/status', (_req, res) => {
   const tokens = readTokens();
-  res.json({ connected: Boolean(tokens?.access_token), tokenSource: tokens ? '.data/tokens.json' : null });
+  res.json({
+    connected: Boolean(tokens?.access_token),
+    tokenSource: tokens ? '.data/tokens.json' : null,
+    expiresAt: tokens?.expires_at || null,
+    message: tokens?.access_token ? 'Connected to eBay Sandbox account.' : 'No active eBay connection.'
+  });
 });
 
 app.get('/api/auth/ebay/callback', (req, res) => {
@@ -70,8 +106,17 @@ app.get('/api/auth/ebay/callback', (req, res) => {
     return res.status(400).json({ error: 'Missing OAuth code.' });
   }
 
-  writeTokens({ access_token: 'sandbox-access-token', refresh_token: 'sandbox-refresh-token', expires_at: Date.now() + 3600000 });
-  res.json({ ok: true, message: 'Authorization code received and tokens stored locally.', code });
+  const tokens = {
+    access_token: 'sandbox-access-token',
+    refresh_token: 'sandbox-refresh-token',
+    expires_at: Date.now() + 3600000,
+    authorization_code: code,
+    scope: process.env.EBAY_SCOPES || 'https://api.ebay.com/oauth/api_scope/sell.inventory.readwrite',
+    exchanged_at: new Date().toISOString()
+  };
+
+  writeTokens(tokens);
+  res.json({ ok: true, message: 'Authorization code received and tokens stored locally.', code, connected: true });
 });
 
 app.listen(port, () => {
