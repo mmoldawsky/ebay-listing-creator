@@ -1,0 +1,16 @@
+{
+  "name": "ebay-listing-builder-client",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js",
+    "build": "echo \"No build step required\"",
+    "preview": "node server.js"
+  },
+  "dependencies": {
+    "ebay-listing-builder": "file:..",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}

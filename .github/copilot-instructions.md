@@ -1,0 +1,3 @@
+- Keep the project focused on an eBay listing automation MVP.
+- Prioritize a simple local-first workflow with clear environment configuration.
+- Prefer secure handling of eBay credentials and local token storage.
