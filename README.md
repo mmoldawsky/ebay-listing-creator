@@ -5,6 +5,7 @@ A local-first MVP for creating eBay listings through the eBay Sell APIs.
 ## Features
 - Connect your eBay seller account using OAuth 2.0
 - Create listings from a simple form
+- Allow data to be entered using a csv file
 - Preview listing data before submission
 - Store OAuth tokens locally for repeat use
 
